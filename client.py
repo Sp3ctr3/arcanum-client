@@ -85,7 +85,7 @@ class RegisterForm(QtGui.QWidget, Ui_Form3):
             key=RsaPrivateKey.Generate()
             open(self.username.text()+"key","w").write(str(key))
             data=self.username.text()+":"+self.password.text()+":"+self.email.text()+":"+str(key.public_key)
-            r=req.get(address+"/create/"+data)
+            r=req.get(self.address.text()+"/create/"+data)
             print r.text
             if r.text:
                 QMessageBox.about(self,"Info","Account created")
