@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'register.ui'
 #
-# Created: Thu Jan 30 22:31:12 2014
+# Created: Fri Jan 31 00:33:54 2014
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -64,6 +64,12 @@ class Ui_Dialog(object):
         self.exiter = QtGui.QPushButton(self.tab)
         self.exiter.setGeometry(QtCore.QRect(20, 200, 98, 27))
         self.exiter.setObjectName(_fromUtf8("exiter"))
+        self.address = QtGui.QLineEdit(self.tab)
+        self.address.setGeometry(QtCore.QRect(200, 10, 181, 27))
+        self.address.setObjectName(_fromUtf8("address"))
+        self.label_5 = QtGui.QLabel(self.tab)
+        self.label_5.setGeometry(QtCore.QRect(100, 10, 66, 17))
+        self.label_5.setObjectName(_fromUtf8("label_5"))
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
 
         self.retranslateUi(Dialog)
@@ -78,5 +84,7 @@ class Ui_Dialog(object):
         self.RegisterButton.setText(_translate("Dialog", "Register", None))
         self.label_4.setText(_translate("Dialog", "Email", None))
         self.exiter.setText(_translate("Dialog", "Exit", None))
+        self.address.setText(_translate("Dialog", "http://localhost:5000", None))
+        self.label_5.setText(_translate("Dialog", "Server", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Dialog", "Register", None))
 
