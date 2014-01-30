@@ -9,7 +9,7 @@ import requests as req
 from keyczar.keys import RsaPrivateKey,RsaPublicKey,AesKey
 from decrypt import decrypt
 fromUtf8 = QtCore.QString.fromUtf8
-global creds
+global creds,address
 class LoginForm(QtGui.QWidget, Ui_Form1):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -20,9 +20,10 @@ class LoginForm(QtGui.QWidget, Ui_Form1):
 
     def handleButton(self):
         if self.window2 is None:
-            global creds
+            global creds,address
             creds=(str(self.username.text()),str(self.password.text()))
-            if req.get("http://localhost:5000/auth/",auth=creds).status_code==200:
+            address=self.address.text()
+            if req.get(address+"/auth/",auth=creds).status_code==200:
                 self.window2 = MainForm(self)
                 self.window2.show()
             else:
@@ -35,12 +36,12 @@ class MainForm(QtGui.QWidget, Ui_Form2):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
-        global creds
-        r=req.get("http://localhost:5000/send/all",auth=creds)
+        global creds,address
+        r=req.get(address+"/send/all",auth=creds)
         ls=r.json()
         self.userBox.addItems(ls)
         model  = QStringListModel()
-        r=req.get("http://localhost:5000/receive/all",auth=creds)
+        r=req.get(address+"/receive/all",auth=creds)
         self.files=r.json()
         model.setStringList(self.files)
         self.listView.setModel(model)
@@ -56,7 +57,7 @@ class MainForm(QtGui.QWidget, Ui_Form2):
     def sButton(self):
         if self.filen:
             usern=self.userBox.currentText()
-            r=req.get("http://localhost:5000/send/"+usern,auth=creds)
+            r=req.get(address+"/send/"+usern,auth=creds)
             key=RsaPublicKey.Read(r.json()["key"])
             data=open(self.filen,"r").read()
             aesk=AesKey.Generate()
@@ -64,10 +65,10 @@ class MainForm(QtGui.QWidget, Ui_Form2):
             akey=key.Encrypt(str(aesk))
             filename =str(self.filen).split("/")[-1]
             files = {'file': akey+symencdata}
-            req.post("http://localhost:5000/send/"+usern+"/"+filename,files=files,auth=creds)
+            req.post(address+"/send/"+usern+"/"+filename,files=files,auth=creds)
     def getfile(self):
         items=self.listView.selectedIndexes()
-        r=req.get("http://localhost:5000/receive/"+str(items[0].row()+1),auth=creds)
+        r=req.get(address+"/receive/"+str(items[0].row()+1),auth=creds)
         filename=self.files[items[0].row()]
         open(filename,"w").write(decrypt(r.content,creds[0]+"key"))
         QMessageBox.about(self,"Info","File written to "+filename)
@@ -84,7 +85,7 @@ class RegisterForm(QtGui.QWidget, Ui_Form3):
             key=RsaPrivateKey.Generate()
             open(self.username.text()+"key","w").write(str(key))
             data=self.username.text()+":"+self.password.text()+":"+self.email.text()+":"+str(key.public_key)
-            r=req.get("http://localhost:5000/create/"+data)
+            r=req.get(address+"/create/"+data)
             print r.text
             if r.text:
                 QMessageBox.about(self,"Info","Account created")
