@@ -8,8 +8,15 @@ Dependencies
 pyqt4
 keyczar
 requests
+
 Running
 ------
+First time
+```shell
+pip install -r requirements.txt
+sudo apt-get install python-qt4
+
+```
 ```shell
 python client.py
 ```
