@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'lazarus.ui'
 #
-# Created: Tue Jan 28 20:23:32 2014
+# Created: Fri Jan 31 00:21:45 2014
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -46,6 +46,12 @@ class Ui_Dialog(object):
         self.label_2 = QtGui.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(10, 110, 66, 17))
         self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.address = QtGui.QLineEdit(Dialog)
+        self.address.setGeometry(QtCore.QRect(120, 150, 161, 27))
+        self.address.setObjectName(_fromUtf8("address"))
+        self.label_3 = QtGui.QLabel(Dialog)
+        self.label_3.setGeometry(QtCore.QRect(20, 150, 66, 17))
+        self.label_3.setObjectName(_fromUtf8("label_3"))
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -56,4 +62,5 @@ class Ui_Dialog(object):
         self.register_2.setText(_translate("Dialog", "Register", None))
         self.label.setText(_translate("Dialog", "Username", None))
         self.label_2.setText(_translate("Dialog", "Password", None))
+        self.label_3.setText(_translate("Dialog", "Server", None))
 
