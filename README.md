@@ -7,7 +7,7 @@ Dependencies
 -----------
 pyqt4
 keyczar
-
+requests
 Running
 ------
 ```shell
