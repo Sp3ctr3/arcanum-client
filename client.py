@@ -23,7 +23,7 @@ class LoginForm(QtGui.QWidget, Ui_Form1):
             global creds,address
             creds=(str(self.username.text()),str(self.password.text()))
             address=self.address.text()
-            if req.get(address+"/auth/",auth=creds).status_code==200:
+            if req.get(address+"/auth/",auth=creds,verify=False).status_code==200:
                 self.window2 = MainForm(self)
                 self.window2.show()
             else:
@@ -37,11 +37,11 @@ class MainForm(QtGui.QWidget, Ui_Form2):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
         global creds,address
-        r=req.get(address+"/send/all",auth=creds)
+        r=req.get(address+"/send/all",auth=creds,verify=False)
         ls=r.json()
         self.userBox.addItems(ls)
         model  = QStringListModel()
-        r=req.get(address+"/receive/all",auth=creds)
+        r=req.get(address+"/receive/all",auth=creds,verify=False)
         self.files=r.json()
         model.setStringList(self.files)
         self.listView.setModel(model)
@@ -57,7 +57,7 @@ class MainForm(QtGui.QWidget, Ui_Form2):
     def sButton(self):
         if self.filen:
             usern=self.userBox.currentText()
-            r=req.get(address+"/send/"+usern,auth=creds)
+            r=req.get(address+"/send/"+usern,auth=creds,verify=False)
             key=RsaPublicKey.Read(r.json()["key"])
             data=open(self.filen,"r").read()
             aesk=AesKey.Generate()
@@ -65,10 +65,10 @@ class MainForm(QtGui.QWidget, Ui_Form2):
             akey=key.Encrypt(str(aesk))
             filename =str(self.filen).split("/")[-1]
             files = {'file': akey+symencdata}
-            req.post(address+"/send/"+usern+"/"+filename,files=files,auth=creds)
+            req.post(address+"/send/"+usern+"/"+filename,files=files,auth=creds,verify=False)
     def getfile(self):
         items=self.listView.selectedIndexes()
-        r=req.get(address+"/receive/"+str(items[0].row()+1),auth=creds)
+        r=req.get(address+"/receive/"+str(items[0].row()+1),auth=creds,verify=False)
         filename=self.files[items[0].row()]
         open(filename,"w").write(decrypt(r.content,creds[0]+"key"))
         QMessageBox.about(self,"Info","File written to "+filename)
@@ -85,7 +85,7 @@ class RegisterForm(QtGui.QWidget, Ui_Form3):
             key=RsaPrivateKey.Generate()
             open(self.username.text()+"key","w").write(str(key))
             data=self.username.text()+":"+self.password.text()+":"+self.email.text()+":"+str(key.public_key)
-            r=req.get(self.address.text()+"/create/"+data)
+            r=req.get(self.address.text()+"/create/"+data,verify=False)
             print r.text
             if r.text:
                 QMessageBox.about(self,"Info","Account created")
