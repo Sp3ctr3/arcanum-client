@@ -1,3 +1,4 @@
+#!/usr/bin/python2.7
 from PyQt4 import QtCore,QtGui
 from PyQt4.QtGui import QFileDialog,QMessageBox,QStringListModel
 import sys
@@ -49,6 +50,19 @@ class MainForm(QtGui.QWidget, Ui_Form2):
         self.sendButton.clicked.connect(self.sButton)
         self.getFile.clicked.connect(self.getfile)
         self.exiter.clicked.connect(self.end)
+        self.pushButton_2.clicked.connect(self.change)
+    def change(self):
+        oldp=self.oldpassword.text()
+        newp1=self.newpassword1.text()
+        newp2=self.newpassword2.text()
+        if not newp1==newp2:
+            QMessageBox.about(self,"Error","Passwords don't match")
+        else:
+            ch=req.get(address+"/change/"+oldp+"/"+newp1,auth=creds,verify=False)
+            if "changed" in ch.text:
+                QMessageBox.about(self,"Info","Passwords successfully changed")
+            else:
+                QMessageBox.about(self,"Info","Password could not be changed")
     def end(self):
         QtCore.QCoreApplication.instance().quit()
     def openButton(self):
@@ -87,7 +101,7 @@ class RegisterForm(QtGui.QWidget, Ui_Form3):
             data=self.username.text()+":"+self.password.text()+":"+self.email.text()+":"+str(key.public_key)
             r=req.get(self.address.text()+"/create/"+data,verify=False)
             print r.text
-            if r.text:
+            if r.json().keys()[0] != "Error":
                 QMessageBox.about(self,"Info","Account created")
     def end(self):
         QtCore.QCoreApplication.instance().quit()
