@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Fri Feb 21 10:25:42 2014
+# Created: Fri Feb 21 11:49:04 2014
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -62,6 +62,9 @@ class Ui_Dialog(object):
         self.exiter = QtGui.QPushButton(self.tab_2)
         self.exiter.setGeometry(QtCore.QRect(10, 240, 98, 27))
         self.exiter.setObjectName(_fromUtf8("exiter"))
+        self.delete_button = QtGui.QPushButton(self.tab_2)
+        self.delete_button.setGeometry(QtCore.QRect(150, 240, 98, 27))
+        self.delete_button.setObjectName(_fromUtf8("delete_button"))
         self.tabWidget.addTab(self.tab_2, _fromUtf8(""))
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName(_fromUtf8("tab_3"))
@@ -92,7 +95,7 @@ class Ui_Dialog(object):
         self.tabWidget.addTab(self.tab_3, _fromUtf8(""))
 
         self.retranslateUi(Dialog)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -104,6 +107,7 @@ class Ui_Dialog(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Dialog", "Send", None))
         self.getFile.setText(_translate("Dialog", "Get", None))
         self.exiter.setText(_translate("Dialog", "Exit", None))
+        self.delete_button.setText(_translate("Dialog", "Delete", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Dialog", "Receive", None))
         self.pushButton_2.setText(_translate("Dialog", "Change Password", None))
         self.label_3.setText(_translate("Dialog", "Old Password", None))
