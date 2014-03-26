@@ -7,6 +7,7 @@ from login import Ui_Dialog as Ui_Form1
 from main import Ui_Dialog as Ui_Form2 
 from register import Ui_Dialog as Ui_Form3
 import requests as req
+import binascii
 from keyczar.keys import RsaPrivateKey,RsaPublicKey,AesKey
 from decrypt import decrypt
 fromUtf8 = QtCore.QString.fromUtf8
@@ -58,7 +59,7 @@ class MainForm(QtGui.QWidget, Ui_Form2):
         r=req.get(address+"/receive/get/all",auth=creds,verify=False)
         self.files=r.json()
         self.model.setStringList(self.files)
-        self.listView.setModel(model)
+        self.listView.setModel(self.model)
     def change(self):
         oldp=self.oldpassword.text()
         newp1=self.newpassword1.text()
@@ -84,14 +85,26 @@ class MainForm(QtGui.QWidget, Ui_Form2):
             data=open(self.filen,"r").read()
             aesk=AesKey.Generate()
             symencdata=aesk.Encrypt(data)
+            privatekey=RsaPrivateKey.Read(open(str(creds[0])+"key").read())
             akey=key.Encrypt(str(aesk))
             filename =str(self.filen).split("/")[-1]
-            files = {'file': akey+symencdata}
-            req.post(address+"/send/"+usern+"/"+filename,files=files,auth=creds,verify=False)
+            finaldata=akey+symencdata
+            files = {'file': finaldata}
+            signed=privatekey.Sign(finaldata)
+            signhex=binascii.hexlify(signed)
+            req.post(address+"/send/"+usern+"/"+filename+"/"+signhex,files=files,auth=creds,verify=False)
     def getfile(self):
         items=self.listView.selectedIndexes()
         r=req.get(address+"/receive/get/"+str(items[0].row()+1),auth=creds,verify=False)
         filename=self.files[items[0].row()]
+        ver=req.get(address+"/receive/verify/"+str(items[0].row()+1),auth=creds,verify=False)
+        signature=binascii.unhexlify(ver.json()["sign"])
+        keycall=req.get(address+"/send/"+ver.json()["user"],auth=creds,verify=False)
+        key=RsaPublicKey.Read(keycall.json()["key"])
+        if key.Verify(r.content,signature):
+            QMessageBox.about(self,"Info","File verified to be from "+ver.json()["user"])
+        else:
+            QMessageBox.about(self,"Info","Verification failed")
         open(filename,"w").write(decrypt(r.content,creds[0]+"key"))
         QMessageBox.about(self,"Info","File written to "+filename)
 class RegisterForm(QtGui.QWidget, Ui_Form3):
