@@ -1,15 +1,16 @@
 #!/usr/bin/python2.7
 from PyQt4 import QtCore,QtGui
 from PyQt4.QtGui import QFileDialog,QMessageBox,QStringListModel
-import sys
+import sys,os,re
 from PyQt4.QtCore import QString
 from login import Ui_Dialog as Ui_Form1
 from main import Ui_Dialog as Ui_Form2 
 from register import Ui_Dialog as Ui_Form3
 import requests as req
 import binascii
+import hashlib
 from keyczar.keys import RsaPrivateKey,RsaPublicKey,AesKey
-from decrypt import decrypt
+from decrypt import decrypt,encrypt_file,decrypt_file
 fromUtf8 = QtCore.QString.fromUtf8
 global creds,address
 class LoginForm(QtGui.QWidget, Ui_Form1):
@@ -85,14 +86,20 @@ class MainForm(QtGui.QWidget, Ui_Form2):
             data=open(self.filen,"r").read()
             aesk=AesKey.Generate()
             symencdata=aesk.Encrypt(data)
+            decrypt_file(hashlib.sha256(str(creds[0])).digest(),creds[0]+"key.enc")
             privatekey=RsaPrivateKey.Read(open(str(creds[0])+"key").read())
+            os.remove(creds[0]+"key")
             akey=key.Encrypt(str(aesk))
             filename =str(self.filen).split("/")[-1]
             finaldata=akey+symencdata
             files = {'file': finaldata}
             signed=privatekey.Sign(finaldata)
             signhex=binascii.hexlify(signed)
-            req.post(address+"/send/"+usern+"/"+filename+"/"+signhex,files=files,auth=creds,verify=False)
+            send=req.post(address+"/send/"+usern+"/"+filename+"/"+signhex,files=files,auth=creds,verify=False)
+            if send.status_code==200:
+                QMessageBox.about(self,"Info","File sent successfully")
+            else:
+                QMessageBox.about(self,"Info","File not send")
     def getfile(self):
         items=self.listView.selectedIndexes()
         r=req.get(address+"/receive/get/"+str(items[0].row()+1),auth=creds,verify=False)
@@ -105,8 +112,11 @@ class MainForm(QtGui.QWidget, Ui_Form2):
             QMessageBox.about(self,"Info","File verified to be from "+ver.json()["user"])
         else:
             QMessageBox.about(self,"Info","Verification failed")
+        decrypt_file(hashlib.sha256(str(creds[0])).digest(),creds[0]+"key.enc")
         open(filename,"w").write(decrypt(r.content,creds[0]+"key"))
         QMessageBox.about(self,"Info","File written to "+filename)
+        os.remove(creds[0]+"key")
+        os.system("gnome-open "+filename)
 class RegisterForm(QtGui.QWidget, Ui_Form3):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -116,9 +126,14 @@ class RegisterForm(QtGui.QWidget, Ui_Form3):
     def register(self):
         if self.password.text()!=self.password2.text():
             QMessageBox.about(self,"Error","Passwords don't match")
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", self.email.text()):
+            QMessageBox.about(self,"Error","Email not valid")
         else:
             key=RsaPrivateKey.Generate()
             open(self.username.text()+"key","w").write(str(key))
+            print self.username.text()
+            encrypt_file(hashlib.sha256(str(self.username.text())).digest(),self.username.text()+"key")
+            os.remove(self.username.text()+"key")
             data=self.username.text()+":"+self.password.text()+":"+self.email.text()+":"+str(key.public_key)
             r=req.get(self.address.text()+"/create/"+data,verify=False)
             print r.text
