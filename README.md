@@ -1,5 +1,6 @@
 arcanum-client
 ==============
+Arcanum is a file sharing and storage service that utilizes client side encryption to assure that no body other than the intended recipient can open the files.
 
 Client for arcanum server. In Arcanum, the server plays very little role. The client handles encryption as well as decryption. The server merely handles file storage and user management. This ensures that even if the server is compromised, the user data is not.
 
