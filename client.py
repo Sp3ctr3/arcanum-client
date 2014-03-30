@@ -62,15 +62,18 @@ class MainForm(QtGui.QWidget, Ui_Form2):
         self.model.setStringList(self.files)
         self.listView.setModel(self.model)
     def change(self):
-        oldp=self.oldpassword.text()
-        newp1=self.newpassword1.text()
+        oldp=str(self.oldpassword.text())
+        newp1=str(self.newpassword1.text())
         newp2=self.newpassword2.text()
         if not newp1==newp2:
             QMessageBox.about(self,"Error","Passwords don't match")
         else:
             ch=req.get(address+"/change/"+oldp+"/"+newp1,auth=creds,verify=False)
             if "changed" in ch.text:
-
+                decrypt_file(hashlib.sha256(oldp).digest(),creds[0]+"key.enc")
+                os.remove(creds[0]+"key.enc")
+                encrypt_file(hashlib.sha256(newp1).digest(),creds[0]+"key")
+                os.remove(creds[0]+"key")
                 QMessageBox.about(self,"Info","Passwords successfully changed")
             else:
                 QMessageBox.about(self,"Info","Password could not be changed")
