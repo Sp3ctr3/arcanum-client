@@ -70,6 +70,7 @@ class MainForm(QtGui.QWidget, Ui_Form2):
         else:
             ch=req.get(address+"/change/"+oldp+"/"+newp1,auth=creds,verify=False)
             if "changed" in ch.text:
+
                 QMessageBox.about(self,"Info","Passwords successfully changed")
             else:
                 QMessageBox.about(self,"Info","Password could not be changed")
@@ -86,7 +87,7 @@ class MainForm(QtGui.QWidget, Ui_Form2):
             data=open(self.filen,"r").read()
             aesk=AesKey.Generate()
             symencdata=aesk.Encrypt(data)
-            decrypt_file(hashlib.sha256(str(creds[0])).digest(),creds[0]+"key.enc")
+            decrypt_file(hashlib.sha256(str(creds[1])).digest(),creds[0]+"key.enc")
             privatekey=RsaPrivateKey.Read(open(str(creds[0])+"key").read())
             os.remove(creds[0]+"key")
             akey=key.Encrypt(str(aesk))
@@ -112,7 +113,7 @@ class MainForm(QtGui.QWidget, Ui_Form2):
             QMessageBox.about(self,"Info","File verified to be from "+ver.json()["user"])
         else:
             QMessageBox.about(self,"Info","Verification failed")
-        decrypt_file(hashlib.sha256(str(creds[0])).digest(),creds[0]+"key.enc")
+        decrypt_file(hashlib.sha256(str(creds[1])).digest(),creds[0]+"key.enc")
         open(filename,"w").write(decrypt(r.content,creds[0]+"key"))
         QMessageBox.about(self,"Info","File written to "+filename)
         os.remove(creds[0]+"key")
@@ -132,7 +133,7 @@ class RegisterForm(QtGui.QWidget, Ui_Form3):
             key=RsaPrivateKey.Generate()
             open(self.username.text()+"key","w").write(str(key))
             print self.username.text()
-            encrypt_file(hashlib.sha256(str(self.username.text())).digest(),self.username.text()+"key")
+            encrypt_file(hashlib.sha256(str(self.password.text())).digest(),self.username.text()+"key")
             os.remove(self.username.text()+"key")
             data=self.username.text()+":"+self.password.text()+":"+self.email.text()+":"+str(key.public_key)
             r=req.get(self.address.text()+"/create/"+data,verify=False)
